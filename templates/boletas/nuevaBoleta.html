@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<style>
+    .selected:focus {
+        color: #6e707e;
+        background-color: #fff;
+        border-color: #bac8f3;
+        outline: 0;
+        box-shadow: 0 0 0 .2rem rgba(78, 115, 223, .25)
+    }
+
+    .btn-check {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none
+    }
+
+    .btn-check:disabled + .btn, .btn-check[disabled] +
+</style>
+
+<style>
+    .rinputGroup {
+        background-color: #fff;
+        display: block;
+        margin: 10px 0;
+        position: relative;
+    }
+
+    .rinputGroup label {
+        padding: 12px 30px;
+        width: 100%;
+        display: block;
+        text-align: left;
+        color: #3c454c;
+        cursor: pointer;
+        position: relative;
+        z-index: 2;
+        transition: color 200ms ease-in;
+        overflow: hidden;
+    }
+
+    .rinputGroup label:before {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        content: "";
+        background-color: #5562eb;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale3d(1, 1, 1);
+        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .rinputGroup label:after {
+        width: 32px;
+        height: 32px;
+        content: "";
+        border: 2px solid #d1d7dc;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' fill-rule='nonzero'/%3E%3C/svg%3E ");
+        background-repeat: no-repeat;
+        background-position: 2px 3px;
+        border-radius: 50%;
+        z-index: 2;
+        position: absolute;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        transition: all 200ms ease-in;
+    }
+
+    .rinputGroup input:checked ~ label {
+        color: #fff;
+    }
+
+    .rinputGroup input:checked ~ label:before {
+        transform: translate(-50%, -50%) scale3d(56, 56, 1);
+        opacity: 1;
+    }
+
+    .rinputGroup input:checked ~ label:after {
+        background-color: #54e0c7;
+        border-color: #54e0c7;
+    }
+
+    .rinputGroup input {
+        width: 32px;
+        height: 32px;
+        order: 1;
+        z-index: 2;
+        position: absolute;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        visibility: hidden;
+    }
+
+
+</style>
+
+
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.js"></script>
+
+
+<!-- bootstrap icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+
+<!-- Custom styles for this page -->
+<link href="{{ url_for('static',filename='styles/vendor/datatables/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert").fadeOut(1500);
+        }, 3000);
+
+        setTimeout(function () {
+            $(".content2").fadeIn(1500);
+        }, 6000);
+    });
+</script>
+
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+
+{% for message in messages %}
+<script>
+    swal({
+
+        title: "¡Hecho!",
+        text: "{{ message }}",
+        icon: "success",
+        timer: 1500,
+        buttons: false,
+
+    });
+</script>
+{% endfor %}
+
+{% endif %}
+{% endwith %}
+
+
+<div class="container-fluid">
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4"
+         style="margin-left: 95px !important; width: 85% !important; font-size: 12px !important; ">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Registrar nueva boleta</h6>
+        </div>
+
+        <div class="container" style="padding: 30px;">
+
+            <form class="user" action="/nuevoPrestadores" method="post">
+
+                <div class="row">
+
+                    <div class="form-group col-4">
+                        <input placeholder="Número de boleta" name="boleta" required autofocus
+                               class="form-control form-control-user">
+                    </div>
+
+                    <div class="form-group col-4">
+                        <input type="date" class="form-control form-control-user"
+                               id="fecha" placeholder=""
+                               name="fecha" required value="">
+                    </div>
+
+                    <div class="form-group col-4">
+                        <select style="border-color: #d1d3e2 !important; padding:.375rem .75rem; color: #6e707e; height: 49px!important;"
+                                class="selected col-12 form-select form-control-user" id="cobertura"
+                                placeholder="Cobertura del paciente" name="cobertura"
+                                required>
+                            <option selected="true" disabled="disabled">Seleccione cobertura del paciente</option>
+                            <option value="particular"> Particular
+                            </option>
+                            <option value="seguro"> Seguro
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <div class="form-group col-6">
+
+                        <select style="border-color: #d1d3e2 !important; padding:.375rem .75rem; color: #6e707e; height: 49px!important;"
+                                class="d-inline-block selected form-control-user form-select col-12"
+                                aria-label="Default select example" id="especialistas"
+                                name="especialista"
+                                required>
+
+                            <option selected="true" disabled="disabled">Seleccione al/la especialista</option>
+
+                            {% for especialistas in especialistas %}
+                            <option value="{{especialistas[0]}}"> {{especialistas[1]}} {{especialistas[2]}} -
+                                {{especialistas[3]}} - {{especialistas[0]}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-6">
+
+                        <input onkeyup="this.value = this.value.toUpperCase();" type="text"
+                               class="d-inline-block col-12 form-control form-control-user"
+                               id="concepto"
+                               placeholder="Por concepto de..." name="concepto" required autofocus>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-group col-6">
+                        <input onkeyup="formatRunespecialista(this)" placeholder="Digite RUN sin puntos ni guión"
+                               type="text"
+                               name="cliente" id="cliente"
+                               class="form-control form-control-user" maxlength="12"
+                        >
+                    </div>
+                    <div class="form-group col-6">
+                        <input onkeyup="this.value = this.value.toUpperCase();" type="text"
+                               class="form-control form-control-user"
+                               id="nombre_paciente"
+                               placeholder="Nombre del paciente" name="nombre_paciente" required>
+                    </div>
+
+                </div>
+                <br>
+                <br>
+
+                <div class="row">
+
+                    <div class="col-sm-6 d-inline">
+
+                        <div class="card" style="border-radius: 25px;">
+
+                            <div class="card-body">
+
+                                Tipo de Procedimiento
+                                <br>
+                                <br>
+                                <div class="row">
+                                    <div class="rinputGroup col-12">
+                                        <input required style="border-radius: 35px; " id="dental" name="tipo"
+                                               type="radio"/>
+                                        <label style="border-radius: 35px; " for="dental">Dental</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="rinputGroup col-12">
+                                        <input required style="border-radius: 35px !important;" id="estetica"
+                                               name="tipo"
+                                               type="radio"/>
+                                        <label style="border-radius: 35px; " for="estetica">Estética</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SELECTOR METODO DE PAGO -->
+                    <div class="col-sm-6 d-inline">
+                        <div class="card" style="border-radius: 25px;">
+
+                            <div class="card-body">
+
+                                Método de Pago
+                                <br>
+                                <br>
+                                <div class="row">
+                                    <div class="rinputGroup col-6">
+                                        <input required style="border-radius: 35px !important;"
+                                               style="border-radius: 35px; " id="debito" name="metodo" type="radio"/>
+                                        <label style="border-radius: 35px; " for="debito">Débito</label>
+                                    </div>
+                                    <div class="rinputGroup col-6">
+                                        <input required style="border-radius: 35px !important;"
+                                               style="border-radius: 35px; " id="credito" name="metodo" type="radio"/>
+                                        <label style="border-radius: 35px; " for="credito">Crédito</label>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="rinputGroup col-6">
+                                        <input required style="border-radius: 35px !important;"
+                                               style="border-radius: 35px; " id="efectivo" name="metodo" type="radio"/>
+                                        <label style="border-radius: 35px; " for="efectivo">Efectivo</label>
+                                    </div>
+                                    <div class="rinputGroup col-6">
+                                        <input required style="border-radius: 35px !important;"
+                                               style="border-radius: 35px; " id="transferencia" name="metodo"
+                                               type="radio"/>
+                                        <label style="border-radius: 35px; " for="transferencia">Transferencia</label>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <br>
+                <br>
+
+
+                <div class="row text-center justify-content-center">
+                    <input type="reset" class="btn btn-info btn-user col-3"
+                           style="display: inline-block !important;">
+
+
+                    <button type="submit" class="btn btn-facebook btn-user col-5"
+                            style="display: inline-block !important; margin-left: 20px;">
+                        Guardar Boleta
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+
+</div>
+<!-- Datatable Dependency start -->
+<link rel="stylesheet" type="text/css"
+      href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-html5-1.6.1/b-print-1.6.1/r-2.2.3/datatables.min.css"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript"
+        src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-html5-1.6.1/b-print-1.6.1/r-2.2.3/datatables.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.6/js/dataTables.fixedHeader.min.js"></script>
+
+<script>
+    let temp = $("#btn1").clone();
+    $("#btn1").click(function () {
+        $("#btn1").after(temp);
+    });
+
+    $(document).ready(function () {
+        var table = $('#dataTable').DataTable({
+            orderCellsTop: true,
+            fixedHeader: true,
+        });
+
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    function formatRunespecialista(runespecialista) {
+        runespecialista.value = runespecialista.value.replace(/[.-]/g, '')
+            .replace(/^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4')
+    }
+</script>
+
+
+<script>
+    document.getElementById('fecha').value = new Date().toISOString().substring(0, 10);
+
+</script>
+
+{% endblock %}

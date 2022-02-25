@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block titulo%}
+NUEVO PRESUPUESTO
+{% endblock%}
+
+{% block contenido%}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4"
+         style="margin-left: 95px !important; width: 85% !important; font-size: 12px !important; ">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Nuevo Presupuesto</h6>
+        </div>
+
+        <div class="container" style="padding: 30px;">
+
+            <form class="user" action="/guardarPresupuesto" method="post">
+
+                <div class="row">
+
+                    <div class="form-group col-3">
+                        <input onkeyup="formatRunespecialista(this)"
+                               placeholder="Digite RUN sin puntos ni guión del paciente"
+                               type="text"
+                               name="cliente" id="cliente"
+                               class="form-control form-control-user" maxlength="12"
+                        >
+                    </div>
+
+                    <div class="form-group col-6">
+                        <input onkeyup="this.value = this.value.toUpperCase();" type="text"
+                               class="form-control form-control-user"
+                               id="nombre_paciente"
+                               placeholder="Nombre del paciente" name="nombre_paciente" required>
+                    </div>
+
+                    <div class="form-group col-3">
+                        <input type="number"
+                               class="form-control form-control-user"
+                               id="telefono"
+                               placeholder="Contacto" name="telefono" required>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+
+                    <div class="form-group col-6">
+
+                        <select style="border-color: #d1d3e2 !important; padding:.375rem .75rem; color: #6e707e; height: 49px!important;"
+                                class="d-inline-block selected form-control-user form-select col-12"
+                                aria-label="Default select example" id="especialistas"
+                                name="especialista"
+                                required>
+
+                            <option selected="true" disabled="disabled">Seleccione al/la especialista</option>
+
+                            {% for especialistas in especialistas %}
+                            <option value="{{especialistas[0]}}"> {{especialistas[1]}} {{especialistas[2]}} -
+                                {{especialistas[3]}} - {{especialistas[0]}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-3">
+                        <select style="border-color: #d1d3e2 !important; padding:.375rem .75rem; color: #6e707e; height: 49px!important;"
+                                class="selected col-12 form-select form-control-user" id="cobertura"
+                                placeholder="Cobertura del paciente" name="cobertura"
+                                required>
+                            <option selected="true" disabled="disabled">Tipo de presupuesto</option>
+                            <option value="dental"> Dental
+                            </option>
+                            <option value="estetica"> Estética
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-3">
+                        <input type="date" class="form-control form-control-user"
+                               id="fecha" placeholder=""
+                               name="fecha" required value="">
+                    </div>
+
+                </div>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider" style="color: white !important;">
+                <br>
+
+                <div class="row clearfix">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover" id="tab_logic">
+                            <thead>
+                            <tr>
+                                <th class="text-center" style="width: 120px "><i class="fa-solid fa-tooth"></i></th>
+                                <th class="text-center" style="width: 80px;"> Cant.</th>
+                                <th class="text-center"> Product</th>
+                                <th class="text-center" style="width: 155px"> Precio</th>
+                                <th class="text-center" style="width: 155px"> Total</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr id='addr0'>
+                                <td><input onkeyup="this.value = this.value.toUpperCase();" type="text" name='diente[]'
+                                           placeholder='Diente' class="form-control"/></td>
+                                <td><input readonly type="number" value="1" name='qty[]' placeholder='Enter Qty'
+                                           class="form-control qty" step="0" min="0"/>
+                                <td><input type="text" name='product[]' placeholder='Enter Product Name'
+                                           class="form-control"/></td>
+
+                                <td><input type="number" name='price[]' placeholder='Precio' class="form-control price"
+                                           step="0.00" min="0"/></td>
+                                <td><input type="number" name='total[]' placeholder='0.00' class="form-control total"
+                                           readonly/></td>
+                            </tr>
+                            <tr id='addr1'></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-md-12 text-center">
+                        <button type="button" id="add_row" class="btn btn-success">Agregar</button>
+                        <button type="button" id='delete_row' class="pull-right btn btn-danger">Eliminar</button>
+                    </div>
+                </div>
+                <div class="row clearfix" style="margin-top:20px;" style="text-align: right!important;">
+                    <div class="pull-right col-md-4" style="text-align: right!important;">
+                        <table class="table table-bordered table-hover" id="tab_logic_total"
+                               style="text-align: right!important;">
+                            <tbody>
+                            <tr>
+                                <th class="text-center">Total</th>
+                                <td class="text-center"><input type="number" name='sub_total' placeholder='0.00'
+                                                               class="form-control" id="sub_total" readonly/></td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="row text-center justify-content-center">
+                    <input type="reset" class="btn btn-info btn-user col-3"
+                           style="display: inline-block !important;">
+
+                    </input>
+                    <button type="submit" class="btn btn-facebook btn-user col-5"
+                            style="display: inline-block !important; margin-left: 20px;">
+                        Guardar Cambios
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function formatRunespecialista(runespecialista) {
+        runespecialista.value = runespecialista.value.replace(/[.-]/g, '')
+            .replace(/^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4')
+    }
+</script>
+
+<script>
+    document.getElementById('fecha').value = new Date().toISOString().substring(0, 10);
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        var i = 1;
+        $("#add_row").click(function () {
+            b = i - 1;
+            $('#addr' + i).html($('#addr' + b).html()).find('td:first-child').html();
+            $('#tab_logic').append('<tr id="addr' + (i + 1) + '"></tr>');
+            i++;
+        });
+        $("#delete_row").click(function () {
+            if (i > 1) {
+                $("#addr" + (i - 1)).html('');
+                i--;
+            }
+            calc();
+        });
+
+        $('#tab_logic tbody').on('keyup change', function () {
+            calc();
+        });
+        $('#tax').on('keyup change', function () {
+            calc_total();
+        });
+
+
+    });
+
+    function calc() {
+        $('#tab_logic tbody tr').each(function (i, element) {
+            var html = $(this).html();
+            if (html != '') {
+                var qty = $(this).find('.qty').val();
+                var price = $(this).find('.price').val();
+                $(this).find('.total').val(qty * price);
+
+                calc_total();
+            }
+        });
+    }
+
+    function calc_total() {
+        total = 0;
+        $('.total').each(function () {
+            total += parseInt($(this).val());
+        });
+        $('#sub_total').val(total.toFixed(0));
+        tax_sum = total / 100 * $('#tax').val();
+        $('#tax_amount').val(tax_sum.toFixed(0));
+        $('#total_amount').val((tax_sum + total).toFixed(0));
+    }
+
+</script>
+{% endblock%}
